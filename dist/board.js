@@ -14,7 +14,7 @@
   ];
   const time = new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Bangkok',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
   const date = new Intl.DateTimeFormat('th-TH',{timeZone:'Asia/Bangkok',weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  function tick(){const now = new Date(), parts = time.format(now).split(':');$('clock-hours').textContent=parts.slice(0,2).join(':');$('clock-seconds').textContent=parts[2];$('clock-date').textContent=date.format(now);const h=Number(parts[0]);$('board-greeting').textContent=h<5?'ดึกแล้ว พักสักหน่อยไหม':h<12?'สวัสดีตอนเช้า':h<17?'สวัสดีตอนบ่าย':'สวัสดีตอนเย็น';}
+  function tick(){const now = new Date(), parts = time.format(now).split(':');$('clock-hours').textContent=parts.slice(0,2).join(':');$('clock-seconds').textContent=parts[2];$('clock-date').textContent=date.format(now);}
   tick();setInterval(tick,1000);
   let shortcuts = defaults.map(item=>({...item}));
   function validURL(value){try{const url=new URL(value,location.origin);return ['https:','http:'].includes(url.protocol)?url:null;}catch{return null;}}
