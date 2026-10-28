@@ -25,11 +25,11 @@ async function page(user, hash = '', error = null) {
     if (!nodes.has(id)) nodes.set(id, { value:'', contains:()=>false, set hidden(value){writes++}, set disabled(value){writes++}, set textContent(value){writes++} });
     return nodes.get(id);
   };
-  context.JetaAccount = api; context.location.hash = hash;
-  context.document.getElementById = get;
-  context.document.body = { classList:{ toggle(){} } };
+  context.JetaAccount = api; context.window.JetaProfile=undefined; context.location.hash = hash;
+  context.document.getElementById = get; context.document.querySelector = selector => get(selector.slice(1));
+  context.document.body = { classList:{ toggle(){}, contains:()=>true } };
   context.window.addEventListener = () => {};
-  vm.runInContext(fs.readFileSync('dist/account-page.js','utf8'),context);
+  vm.runInContext(fs.readFileSync('dist/account-page.js','utf8').replace('void JetaProfile.mount()', 'void window.JetaProfile.mount()'),context);
   await new Promise(resolve=>setImmediate(resolve));
   return { classes, writes, redirect: context.redirect, nodes };
 }

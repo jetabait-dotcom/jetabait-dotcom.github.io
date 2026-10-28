@@ -1,21 +1,21 @@
-(() => {
-  const $ = id => document.getElementById(id);
+window.JetaProfile = { mount(root = document, embedded = false) {
+  const $ = id => root.querySelector('#' + id);
   let navigating = false;
   const success = $('save-success');
   let successTimer;
-  $('settings-close').onclick = () => { if (window.parent !== window) window.parent.postMessage('jetabait-close-settings', location.origin); else location.replace('/'); };
+  $('settings-close').onclick = () => { if (embedded) root.close(); else location.replace('/'); };
   async function render() {
     const state = await JetaAccount.ready;
     const current = JetaAccount.state();
     if (navigating) return state;
     // Keep the transition screen until navigation; never paint the profile during OAuth return.
-    if (current.user && !['#profile', '#settings'].includes(location.hash)) { navigating = true; location.replace(JetaAccount.destination()); return state; }
+    if (!embedded && current.user && !['#profile', '#settings'].includes(location.hash)) { navigating = true; location.replace(JetaAccount.destination()); return state; }
     $('google-signin').hidden = Boolean(current.user);
     $('profile-panel').hidden = !current.user;
     $('google-signin').disabled = !current.configured || !current.googleEnabled || Boolean(current.error);
-    document.body.classList.toggle('login-only', !current.user);
+    if (!embedded) document.body.classList.toggle('login-only', !current.user);
     if (current.user) {
-      document.title = 'บัญชีของฉัน — Jetabait';
+      if (!embedded) document.title = 'บัญชีของฉัน — Jetabait';
       $('account-title').textContent = 'บัญชีของฉัน';
       $('profile-name').textContent = current.user.user_metadata?.display_name || current.user.user_metadata?.full_name || 'สมาชิก Jetabait';
       $('profile-email').textContent = current.user.email || '';
@@ -31,7 +31,7 @@
         ? 'เตรียมระบบบัญชีและคลังออนไลน์แล้ว กำลังรอเปิดใช้งาน Google Login'
         : '');
     }
-    JetaAccount.reveal();
+    if (!embedded) JetaAccount.reveal();
     return state;
   }
   $('google-signin').onclick = async () => {
@@ -68,13 +68,14 @@
       const values = { display_name: $('display-name').value.trim() };
       if (!values.display_name) throw Error('กรุณาใส่ชื่อที่แสดง');
       if (avatarCustom !== undefined) values.avatar_custom = avatarCustom;
-      await JetaAccount.updateProfile(values); await JetaAccount.profile();
+      await JetaAccount.updateProfile(values);
       avatarCustom = undefined; $('profile-status').textContent = ''; success.hidden = false;
       clearTimeout(successTimer); successTimer = setTimeout(() => { success.hidden = true; }, 1800);
     } catch(e) { $('profile-status').textContent = e.message; }
     finally { $('save-profile').disabled = false; }
   };
   JetaAccount.subscribe(() => { void render(); });
-  window.addEventListener('hashchange', () => { void render(); });
-  void render();
-})();
+  if (!embedded) window.addEventListener('hashchange', () => { void render(); });
+  return render;
+} };
+if (document.body.classList.contains('account-page')) void JetaProfile.mount()();
