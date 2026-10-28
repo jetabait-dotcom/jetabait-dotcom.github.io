@@ -34,7 +34,7 @@ async function jikanSearch(q, signal) {
 async function wikiSearch(q, kind, signal) {
   const thai = /[\u0E00-\u0E7F]/.test(q), lang = thai ? 'th' : 'en';
   const term = kind === 'movie' ? (thai ? 'ภาพยนตร์' : 'film') : (thai ? 'อนิเมะ' : 'anime');
-  const params = new URLSearchParams({ action: 'query', format: 'json', origin: '*', generator: 'search', gsrsearch: q + ' ' + term, gsrnamespace: '0', gsrlimit: '12', prop: 'pageimages|extracts|info|pageprops|langlinks', ppprop: 'disambiguation', lllang: 'en', lllimit: '1', piprop: 'thumbnail', pithumbsize: '400', exintro: '1', explaintext: '1', exsentences: '3', inprop: 'url' });
+  const params = new URLSearchParams({ action: 'query', format: 'json', origin: '*', generator: 'search', gsrsearch: q + ' ' + term, gsrnamespace: '0', gsrlimit: '12', prop: 'pageimages|extracts|info|pageprops|langlinks', ppprop: 'disambiguation', lllang: 'en', lllimit: '1', piprop: 'thumbnail', pilicense: 'any', pithumbsize: '400', exintro: '1', explaintext: '1', exsentences: '3', inprop: 'url' });
   const data = await searchJSON(`https://${lang}.wikipedia.org/w/api.php?` + params, {}, signal);
   if (data.error) throw Error('Wikipedia unavailable');
   return Object.values(data.query?.pages || {}).sort((a, b) => a.index - b.index).filter(x => {

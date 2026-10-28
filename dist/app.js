@@ -15,6 +15,28 @@ $('manual').onclick=()=>edit({kind:$('search-kind').value});
 $('edit-form').onsubmit=e=>{e.preventDefault();const progress=Number($('progress').value),episodes=$('episodes').value?Number($('episodes').value):null;if(episodes&&progress>episodes){toast('ตอนที่ดูต้องไม่มากกว่าจำนวนตอนทั้งหมด');return}const x={...draft,id:draft.id||crypto.randomUUID(),title:$('title').value.trim(),kind:$('kind').value,year:$('year').value?Number($('year').value):null,status:$('status').value,rating:$('rating').value!==''?Number($('rating').value):null,progress,episodes,notes:$('notes').value,added:draft.added||new Date().toISOString(),updated:new Date().toISOString()};if(!valid(x)){toast('กรุณาตรวจสอบชื่อเรื่องและข้อมูลอีกครั้ง');return}if(save([...items.filter(i=>i.id!==x.id),x])){$('edit-dialog').close();toast('เก็บเข้าคลังแล้ว ✦')}};
 $('delete').onclick=()=>{if(confirm('ลบเรื่องนี้ออกจากคลัง?')){if(save(items.filter(i=>i.id!==draft.id))){$('edit-dialog').close();toast('ลบออกจากคลังแล้ว')}}};
 initSearch();
+async function repairMissingPosters(){
+  const groups=new Map();
+  for(const item of items){
+    const match=item.id.match(/^wiki-(en|th)-(\d+)$/);
+    if(match&&!safeURL(item.poster)){
+      if(!groups.has(match[1]))groups.set(match[1],[]);
+      groups.get(match[1]).push(match[2]);
+    }
+  }
+  for(const [language,ids] of groups){
+    for(let offset=0;offset<ids.length;offset+=40){
+      try{
+        const params=new URLSearchParams({action:'query',format:'json',origin:'*',pageids:ids.slice(offset,offset+40).join('|'),prop:'pageimages',piprop:'thumbnail',pilicense:'any',pithumbsize:'500'});
+        const data=await searchJSON(`https://${language}.wikipedia.org/w/api.php?`+params,{});
+        const found=new Map(Object.values(data.query?.pages||{}).filter(page=>safeURL(page.thumbnail?.source)).map(page=>[`wiki-${language}-${page.pageid}`,page.thumbnail.source]));
+        const next=items.map(item=>!safeURL(item.poster)&&found.has(item.id)?{...item,poster:found.get(item.id)}:item);
+        if(next.some((item,index)=>item!==items[index]))save(next);
+      }catch{/* A later visit can retry without changing the existing library. */}
+    }
+  }
+}
+repairMissingPosters();
 function download(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 $('export').onclick=()=>{if(!items.length){toast('เพิ่มเรื่องเข้าคลังก่อนส่งออก');return}const rows=items.map(x=>({'ชื่อเรื่อง':x.title,'ประเภท':x.kind==='anime'?'อนิเมะ':'ภาพยนตร์','ปี':x.year||'','สถานะ':statuses[x.status],'คะแนน':x.rating??'','ดูถึงตอน':x.progress,'จำนวนตอน':x.episodes||'','โน้ต':x.notes||'','แนว':x.genre||'','แหล่งข้อมูล':x.source||'','วันที่เพิ่ม':x.added||''}));if(window.XLSX){const sheet=XLSX.utils.json_to_sheet(rows);sheet['!cols']=[{wch:38},{wch:14},{wch:8},{wch:16},{wch:10},{wch:12},{wch:12},{wch:50},{wch:25},{wch:50},{wch:26}];const book=XLSX.utils.book_new();XLSX.utils.book_append_sheet(book,sheet,'คลังของฉัน');XLSX.writeFile(book,'scene-library.xlsx');toast('ส่งออก Excel แล้ว')}else{const cell=v=>'"'+String(v).replace(/^[=+@-]/,"'$&").replace(/"/g,'""')+'"';const csv=[Object.keys(rows[0]),...rows.map(Object.values)].map(row=>row.map(cell).join(',')).join('\r\n');download(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}),'scene-library.csv');toast('โหลด Excel ไม่สำเร็จ ส่งออก CSV ที่เปิดใน Excel ได้แทน')}};
 $('backup').onclick=()=>{download(new Blob([JSON.stringify({version:1,items},null,2)],{type:'application/json'}),'scene-backup.json');toast('สำรองข้อมูลแล้ว')};$('restore').onclick=()=>$('import-file').click();$('import-file').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{if(file.size>10e6)throw Error();const data=JSON.parse(await file.text());if(data.version!==1||!Array.isArray(data.items)||!data.items.every(valid))throw Error();const map=new Map(items.map(x=>[x.id,x]));for(const x of data.items)if(!map.has(x.id))map.set(x.id,x);const added=map.size-items.length;if(save([...map.values()]))toast('นำเข้าแล้ว '+added+' เรื่อง · รายการซ้ำเก็บข้อมูลเดิม')}catch{toast('นำเข้าไม่ได้ กรุณาเลือกไฟล์สำรอง Scene ที่ถูกต้อง')}e.target.value=''};render();
