@@ -13,3 +13,4 @@ dialog{background:#191719;color:#f0eaed;border-color:#44343b;box-shadow:0 20px 7
 @media(max-width:720px){.hub-menu{padding:18px}.hub-menu header{height:73px;margin:0 0 5vh}.hub-menu .tool-card{min-height:205px}.hub-menu .tool-info{padding:19px 15px}}
 .header-actions{display:flex;align-items:center;gap:10px}.library-brand{padding:12px 0 20px}.library-brand h1{font-size:clamp(32px,3vw,42px);letter-spacing:-1.2px;margin:0;line-height:1.3}.library-brand h1 span{color:var(--lime)}@media(max-width:720px){.header-actions{gap:7px}.header-actions .primary,.header-actions .secondary{padding:9px 10px;font-size:10px}.library-brand{padding:12px 0 17px}}
 .cards .poster{background:linear-gradient(140deg,#353038,#20201f)}
+@media(min-width:721px){aside nav{margin-top:32px}}
