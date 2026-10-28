@@ -1,0 +1,31 @@
+const fs = require('node:fs');
+const assert = require('node:assert/strict');
+const groups = JSON.parse(fs.readFileSync('db/words-th.json', 'utf8'));
+const words = [...new Set(Object.values(groups).flatMap(list => list.split(',').map(word => word.trim().normalize('NFC'))))];
+assert(words.length >= 1000, 'Thai deck must contain at least 1,000 unique words');
+assert(words.every(word => word.length > 0 && [...word].length <= 24 && !/\s/.test(word)), 'Invalid Thai word');
+assert(words.every(word => /[ก-๙]/u.test(word)), 'Thai words must contain Thai characters');
+const quote = text => "'" + text.replaceAll("'", "''") + "'";
+const dictionary = `-- Generated from db/words-th.json by scripts/build-thai-words.cjs\ncreate or replace function jeta_game_private.thai_words()\nreturns text[] language sql immutable set search_path = '' as $words$\n select string_to_array(${quote(words.join(','))}, ',')\n$words$;\nrevoke all on function jeta_game_private.thai_words() from public, anon, authenticated;\n`;
+const sourcePath = 'db/codenames.sql';
+let source = fs.readFileSync(sourcePath, 'utf8');
+const old = source.match(/words := string_to_array\('แมว([^']*)',','\);/u);
+if (old) {
+  const previous = ('แมว'+old[1]).split(',');
+  assert(previous.every(word => words.includes(word)), 'Do not lose words from the original deck');
+  source = source.replace(old[0], 'words := jeta_game_private.thai_words();');
+}
+const begin = '-- BEGIN GENERATED THAI DICTIONARY';
+const end = '-- END GENERATED THAI DICTIONARY';
+if (source.includes(begin)) source = source.slice(0, source.indexOf(begin)) + source.slice(source.indexOf(end) + end.length).replace(/^[\r\n]+/, '');
+source = source.replace('create function jeta_game_private.play', begin+'\n'+dictionary+end+'\n\ncreate function jeta_game_private.play');
+source = source.replace("'code',code,'me'", "'code',code,'wordCount',cardinality(r.words),'me'");
+fs.writeFileSync(sourcePath, source);
+const start = source.indexOf('create function jeta_game_private.play');
+const finish = source.indexOf('revoke all on function jeta_game_private.play');
+const play = source.slice(start, finish).replace('create function', 'create or replace function');
+fs.writeFileSync('db/expand-thai-words.sql', dictionary+'\n'+play+"\n-- Update future rounds in existing Thai rooms; active boards stay unchanged.\nupdate jeta_game_private.rooms set words=jeta_game_private.thai_words() where state->>'language'='th';\n");
+const htmlPath = 'dist/codenames.html';
+const html = fs.readFileSync(htmlPath, 'utf8').replace(/<option value="th">[^<]*<\/option>/, '<option value="th">ภาษาไทย · '+words.length.toLocaleString('en-US')+' คำ</option>');
+fs.writeFileSync(htmlPath, html);
+console.log(`PASS: ${words.length} unique Thai words in ${Object.keys(groups).length} categories; valid lengths and original words preserved`);

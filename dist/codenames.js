@@ -68,7 +68,7 @@ async function action(kind,data={}){
 function addText(parent,tag,text,className){const el=document.createElement(tag);el.textContent=text;if(className)el.className=className;parent.append(el);return el;}
 function render(){
   $('room-title').textContent=state.code;$('my-name').textContent=state.me.name;
-  $('room-summary').textContent=(state.language==='custom'?'ชุดคำของเรา':state.language==='en'?'คำภาษาอังกฤษ':'คำภาษาไทย')+' · '+(state.seconds?state.seconds+' วินาทีต่อช่วงใบ้ / ทาย':'ไม่จำกัดเวลา')+' · คุณคือ '+roleName(state.me.role)+(state.me.team==='spectator'?'':' '+teamName(state.me.team))+(state.me.host?' · เจ้าห้อง':'');
+  $('room-summary').textContent=(state.language==='custom'?'ชุดคำของเรา':state.language==='en'?'คำภาษาอังกฤษ':('คำภาษาไทย · '+state.wordCount+' คำ'))+' · '+(state.seconds?state.seconds+' วินาทีต่อช่วงใบ้ / ทาย':'ไม่จำกัดเวลา')+' · คุณคือ '+roleName(state.me.role)+(state.me.team==='spectator'?'':' '+teamName(state.me.team))+(state.me.host?' · เจ้าห้อง':'');
   const lobby=state.phase==='lobby';$('lobby').hidden=!lobby;$('match').hidden=lobby;
   $('player-count').textContent=state.members.length+' คน';
   const ready=['red','blue'].every(team=>['spymaster','operative'].every(role=>state.members.some(m=>m.team===team&&m.role===role)));

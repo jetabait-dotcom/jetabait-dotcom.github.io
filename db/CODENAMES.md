@@ -9,3 +9,5 @@ Database broadcasts contain only an empty refresh hint. Clients fetch authorized
 Run `codenames.test.sql` through the SQL connector. All test rooms, moves, and broadcasts are rolled back. It tests card distribution, role authorization, hidden-key filtering, clue penalties, guessing, assassin loss, completion victory, extra-guess limits, unlimited clues, replay, reconnection, custom decks, timer expiry, stale actions, and empty-room host recovery.
 
 Voice chat is external. Word sets include Thai, English and custom lists. Semantic clue disputes are handled by the opposing spymaster's challenge action before the first guess; players should agree before using it.
+
+The Thai pool contains 1,350 unique words across 23 categories, maintained in `words-th.json`. Run `node scripts/build-thai-words.cjs` from the project directory to validate the pool and regenerate the installation schema, expansion migration and language-option count. Existing Thai rooms receive the new pool for future rounds; their active boards stay unchanged.
