@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 /* Soft rose theme and simplified home menu */
 :root{color-scheme:light;--bg:#fff8fb;--panel:#fff;--line:#f1dce6;--muted:#927d88;--lime:#cf4f80}
 body{background:var(--bg);color:#382b33}aside{background:#fff0f6;border-color:#f1dce6}.brand{color:#482d3b}.brand span{color:#dc7198}.aside-bottom{color:#927d88}.local-dot{color:#a7476c}.text-btn{color:#855e70}

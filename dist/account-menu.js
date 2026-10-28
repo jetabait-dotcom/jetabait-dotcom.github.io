@@ -1,10 +1,9 @@
 (() => {
-  document.documentElement.classList.add('protected-page');
   const render = async () => {
     await JetaAccount.ready;
     const {user, error} = JetaAccount.state();
-    if (!user || error) { location.replace('/account.html'); return; }
-    document.documentElement.classList.remove('protected-page', 'account-loading');
+    if (!user || error) { JetaAccount.requireLogin(); return; }
+    if (document.body.dataset.page !== 'library') JetaAccount.reveal();
     let menu = document.getElementById('user-menu');
     if (!menu) {
       menu = document.createElement('details'); menu.id = 'user-menu'; menu.className = 'user-menu';

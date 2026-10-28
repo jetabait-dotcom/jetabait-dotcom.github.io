@@ -1,14 +1,18 @@
 (() => {
   const $ = id => document.getElementById(id);
+  let navigating = false;
   async function render() {
     const state = await JetaAccount.ready;
     const current = JetaAccount.state();
+    if (navigating) return state;
+    // Keep the transition screen until navigation; never paint the profile during OAuth return.
+    if (current.user && !['#profile', '#settings'].includes(location.hash)) { navigating = true; location.replace(JetaAccount.destination()); return state; }
     $('google-signin').hidden = Boolean(current.user);
     $('profile-panel').hidden = !current.user;
     $('google-signin').disabled = !current.configured || !current.googleEnabled || Boolean(current.error);
-    if (current.user && !['#profile', '#settings'].includes(location.hash)) { location.replace('/'); return state; }
     document.body.classList.toggle('login-only', !current.user);
     if (current.user) {
+      document.title = 'บัญชีของฉัน — Jetabait';
       $('account-title').textContent = 'บัญชีของฉัน';
       $('account-description').textContent = 'เชื่อมต่อบัญชี Google แล้ว';
       $('profile-name').textContent = current.user.user_metadata?.display_name || current.user.user_metadata?.full_name || 'สมาชิก Jetabait';
@@ -21,12 +25,12 @@
       const avatar = meta.avatar_custom || meta.avatar_url;
       if (avatar && /^(https:\/\/|data:image\/webp;base64,)/.test(avatar)) { $('profile-avatar').src = avatar; $('profile-avatar').hidden = false; }
       $('account-message').textContent = '';
-      try { await JetaAccount.profile(); } catch (error) { $('account-message').textContent = error.message; }
     } else {
       $('account-message').textContent = current.error || (!current.configured || !current.googleEnabled
         ? 'เตรียมระบบบัญชีและคลังออนไลน์แล้ว กำลังรอเปิดใช้งาน Google Login'
         : '');
     }
+    JetaAccount.reveal();
     return state;
   }
   $('google-signin').onclick = async () => {
@@ -70,5 +74,6 @@
     finally { $('save-profile').disabled = false; }
   };
   JetaAccount.subscribe(() => { void render(); });
+  window.addEventListener('hashchange', () => { void render(); });
   void render();
 })();

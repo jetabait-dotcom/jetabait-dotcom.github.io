@@ -1,0 +1,10 @@
+{
+  "name": "jetabait",
+  "private": true,
+  "scripts": {
+    "build": "esbuild node_modules/@supabase/supabase-js/dist/index.mjs --bundle --minify --format=esm --platform=browser --target=es2022 --outfile=dist/vendor/supabase.js",
+    "test": "node verify.cjs && node search.test.cjs && node accounts.test.cjs && node auth.test.cjs"
+  },
+  "dependencies": { "@supabase/supabase-js": "2.118.0" },
+  "devDependencies": { "esbuild": "0.25.12" }
+}

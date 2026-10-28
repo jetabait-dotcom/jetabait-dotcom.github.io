@@ -4,3 +4,13 @@ run("edit({title:'Frieren',kind:'anime',episodes:28})");get('status').value='wat
 run('edit(items[0])');get('progress').value='29';get('edit-form').onsubmit({preventDefault(){}});assert.equal(JSON.parse(stored)[0].progress,5,'invalid progress must not save');
 get('progress').value='28';get('status').value='completed';get('edit-form').onsubmit({preventDefault(){}});assert.equal(JSON.parse(stored).length,1,'editing must not duplicate');assert.equal(JSON.parse(stored)[0].status,'completed');
 get('filter').value='not here';run('render()');assert.equal(get('count').textContent,0);assert.equal(run("safeURL('javascript:alert(1)')"),'');assert.equal(run("valid({id:'bad',title:'x',kind:'anime',status:'planned',progress:-1})"),false);console.log('PASS: add, persistence, edit, progress validation, filters, import validation, URL safety');
+const exportCalls = [];
+context.XLSX = context.window.XLSX = { utils: { json_to_sheet(rows) { exportCalls.push(rows); return {}; }, book_new() { return {}; }, book_append_sheet() {} }, writeFile(_book, name) { exportCalls.push(name); } };
+(async () => {
+  await get('export').onclick();
+  assert.equal(exportCalls[0][0]['ชื่อเรื่อง'], 'Frieren');
+  assert.equal(exportCalls[0][0]['สถานะ'], 'ดูจบแล้ว');
+  assert.equal(exportCalls[1], 'scene-library.xlsx');
+  assert.equal(get('export').disabled, false);
+  console.log('PASS: lazy Excel export preserves library fields and restores the button');
+})().catch(error => { console.error(error); process.exitCode = 1; });

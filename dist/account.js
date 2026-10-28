@@ -2,7 +2,6 @@
 (() => {
   const config = window.JETABAIT_CONFIG || {};
   const configured = Boolean(config.supabaseUrl && config.supabasePublishableKey);
-  if (config.googleEnabled) document.documentElement.classList.add('account-loading');
   const state = { configured, googleEnabled: Boolean(config.googleEnabled), user: null, error: null };
   const listeners = new Set();
   let client;
@@ -18,17 +17,19 @@
     if (!configured || !state.googleEnabled) return state;
     try {
       const origin = publicConfig();
-      const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2.118.0');
+      const { createClient } = await import('./vendor/supabase.js');
       client = createClient(origin, config.supabasePublishableKey, {
         auth: { flowType: 'pkce', persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
       });
-      // getUser verifies an existing identity with Auth; database RLS verifies every data request.
-      const { data, error } = await client.auth.getUser();
-      if (error && error.name !== 'AuthSessionMissingError') throw error;
-      state.user = data.user || null;
+      // Browser session is for presentation only. RLS validates identity on every data request.
+      // getSession also waits for the SDK's PKCE callback and refreshes expired tokens.
+      const { data, error } = await client.auth.getSession();
+      if (error) throw error;
+      state.user = data.session?.user || null;
       client.auth.onAuthStateChange((_event, session) => {
         state.user = session?.user || null;
-        notify();
+        // Subscribers may call Auth/DB methods: run them outside the SDK's auth lock.
+        setTimeout(notify, 0);
       });
     } catch { state.error = 'เชื่อมต่อระบบบัญชีไม่ได้ กรุณาลองใหม่อีกครั้ง'; }
     return state;
@@ -36,6 +37,16 @@
   window.JetaAccount = {
     ready,
     state: () => ({ ...state }),
+    reveal() { document.documentElement.classList.remove('auth-pending', 'account-loading', 'protected-page'); },
+    destination() {
+      let path = '/';
+      try { path = sessionStorage.getItem('jetabait-return') || '/'; sessionStorage.removeItem('jetabait-return'); } catch {}
+      return ['/', '/library', '/library.html'].includes(path) ? path : '/';
+    },
+    requireLogin() {
+      try { sessionStorage.setItem('jetabait-return', ['/library', '/library.html'].includes(location.pathname) ? '/library.html' : '/'); } catch {}
+      location.replace('/account.html');
+    },
     subscribe(listener) { listeners.add(listener); return () => listeners.delete(listener); },
     async signIn() {
       await ready;

@@ -1,3 +1,4 @@
+let lastLibrarySync = 0;
 async function syncLibrary() {
   if (!accountStore || syncingLibrary) return;
   syncingLibrary = true;
@@ -6,10 +7,10 @@ async function syncLibrary() {
   try {
     const next = await accountStore.sync();
     if (!Array.isArray(next) || !next.every(valid)) throw Error('ข้อมูลออนไลน์ไม่ถูกต้อง กรุณาตรวจไฟล์สำรอง');
-    items = next;
-    render();
+    if (JSON.stringify(items) !== JSON.stringify(next)) { items = next; render(); }
     $('cloud-status').textContent = 'ซิงก์แล้ว';
     succeeded = true;
+    lastLibrarySync = Date.now();
   } catch (error) {
     $('cloud-status').textContent = 'รอซิงก์ · กดเพื่อลองใหม่';
     $('cloud-status').title = error.message;
@@ -23,9 +24,10 @@ async function syncLibrary() {
   const accountLink = $('library-account');
   if (!state.googleEnabled) {
     accountLink.textContent = '♙ บัญชีของฉัน';
+    JetaAccount.reveal();
     return;
   }
-  if (state.error || !state.user) { location.replace('/account.html'); return; }
+  if (state.error || !state.user) { JetaAccount.requireLogin(); return; }
   $('sort').value = state.user.user_metadata?.default_sort || 'recent';
   const id = state.user.id;
   accountStore = new JetaCloudLibrary(id, valid);
@@ -53,12 +55,12 @@ async function syncLibrary() {
     if (save([...merged.values()])) { toast('นำเข้าคลังเดิม ' + added + ' เรื่องแล้ว'); importLocal.hidden = true; }
     importLocal.disabled = false;
   };
-  document.documentElement.classList.remove('account-loading');
+  JetaAccount.reveal();
   JetaAccount.subscribe(current => {
     if (current.user?.id !== id) { document.documentElement.classList.add('account-loading'); location.replace('/account.html'); }
   });
   await syncLibrary();
   void repairMissingPosters();
   window.addEventListener('online', () => { void syncLibrary(); });
-  window.addEventListener('focus', () => { void syncLibrary(); });
+  window.addEventListener('focus', () => { if (Date.now() - lastLibrarySync > 30000) void syncLibrary(); });
 })();
