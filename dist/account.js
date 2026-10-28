@@ -37,6 +37,7 @@
   window.JetaAccount = {
     ready,
     state: () => ({ ...state }),
+    guest() { try { return sessionStorage.getItem('jetabait-guest') === '1'; } catch { return false; } },
     reveal() { document.documentElement.classList.remove('auth-pending', 'account-loading', 'protected-page'); },
     destination() {
       let path = '/';

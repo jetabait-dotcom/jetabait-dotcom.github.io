@@ -27,6 +27,11 @@ async function syncLibrary() {
     JetaAccount.reveal();
     return;
   }
+  if (!state.user && JetaAccount.guest()) {
+    try { const cached=JSON.parse(localStorage.getItem(KEY)||'[]'); if(Array.isArray(cached)&&cached.every(valid)) items=cached; } catch {}
+    render(); accountLink.textContent='เข้าสู่ระบบด้วย Google';
+    $('library-data-notice').textContent='ผู้เยี่ยมชม · ข้อมูลเก็บในเครื่องนี้'; JetaAccount.reveal(); return;
+  }
   if (state.error || !state.user) { JetaAccount.requireLogin(); return; }
   $('sort').value = state.user.user_metadata?.default_sort || 'recent';
   const id = state.user.id;

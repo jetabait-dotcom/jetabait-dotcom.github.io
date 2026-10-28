@@ -1,3 +1,4 @@
+document.getElementById('skip-login')?.addEventListener('click', () => { try { sessionStorage.setItem('jetabait-guest','1'); location.replace('/'); } catch { document.getElementById('account-message').textContent='เบราว์เซอร์ไม่อนุญาตให้บันทึกสถานะผู้เยี่ยมชม'; } });
 window.JetaProfile = { mount(root = document, embedded = false) {
   const $ = id => root.querySelector('#' + id);
   let navigating = false;

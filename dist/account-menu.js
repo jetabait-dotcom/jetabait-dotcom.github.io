@@ -2,12 +2,17 @@
   const render = async () => {
     await JetaAccount.ready;
     const {user, error} = JetaAccount.state();
+    if (!user && JetaAccount.guest()) {
+      if (document.body.dataset.page !== 'library') JetaAccount.reveal();
+      if (!document.getElementById('guest-login')) { const link=document.createElement('a'); link.id='guest-login'; link.className='user-menu guest-login'; link.href='/account.html'; link.textContent='เข้าสู่ระบบ'; document.body.append(link); }
+      return;
+    }
     if (!user || error) { JetaAccount.requireLogin(); return; }
     if (document.body.dataset.page !== 'library') JetaAccount.reveal();
     let menu = document.getElementById('user-menu');
     if (!menu) {
       menu = document.createElement('details'); menu.id = 'user-menu'; menu.className = 'user-menu';
-      menu.innerHTML = '<summary><img alt="" hidden><span></span></summary><div class="user-menu-items"><a href="/account.html#profile">โปรไฟล์ของฉัน</a><a href="/account.html#settings">ตั้งค่า</a><button type="button">ออกจากระบบ</button><p role="status"></p></div>';
+      menu.innerHTML = '<summary><img alt="" hidden><span></span></summary><div class="user-menu-items"><a href="/account.html#settings">ตั้งค่า</a><button type="button">ออกจากระบบ</button><p role="status"></p></div>';
       document.body.append(menu);
       let settingsReady;
       const prepareSettings = () => settingsReady ||= (async () => {
