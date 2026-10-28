@@ -14,7 +14,6 @@
     if (current.user) {
       document.title = 'บัญชีของฉัน — Jetabait';
       $('account-title').textContent = 'บัญชีของฉัน';
-      $('account-description').textContent = 'เชื่อมต่อบัญชี Google แล้ว';
       $('profile-name').textContent = current.user.user_metadata?.display_name || current.user.user_metadata?.full_name || 'สมาชิก Jetabait';
       $('profile-email').textContent = current.user.email || '';
       const meta = current.user.user_metadata || {};
