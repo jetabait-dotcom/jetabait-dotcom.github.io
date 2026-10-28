@@ -1,6 +1,13 @@
 /* Search providers and type-ahead UI. No library records leave the browser. */
 const searchCache = new Map();
 const plain = text => String(text || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+function retryImage(img) {
+  let fallback = [];
+  try { fallback = JSON.parse(img.dataset.fallbacks || '[]'); } catch {}
+  const next = fallback.find(url => url && url !== img.src && /^https:\/\//i.test(url));
+  if (next) { img.dataset.fallbacks = JSON.stringify(fallback.filter(url => url !== next)); img.src = next; }
+  else img.remove();
+}
 async function searchJSON(url, options, signal) {
   const controller = new AbortController();
   const cancel = () => controller.abort();
@@ -14,15 +21,15 @@ async function searchJSON(url, options, signal) {
   } finally { clearTimeout(timer); signal?.removeEventListener('abort', cancel); }
 }
 async function animeSearch(q, signal) {
-  const query = 'query($search:String){Page(perPage:12){media(search:$search,type:ANIME,isAdult:false,sort:SEARCH_MATCH){id idMal title{romaji english native} episodes startDate{year} coverImage{large} siteUrl description(asHtml:false) genres synonyms}}}';
+  const query = 'query($search:String){Page(perPage:12){media(search:$search,type:ANIME,isAdult:false,sort:SEARCH_MATCH){id idMal title{romaji english native} episodes startDate{year} coverImage{large medium extraLarge} siteUrl description(asHtml:false) genres synonyms}}}';
   const data = await searchJSON('https://graphql.anilist.co', { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify({ query, variables: { search: q } }) }, signal);
   if (!Array.isArray(data.data?.Page?.media)) throw Error('AniList unavailable');
-  return data.data.Page.media.map(x => ({ id: x.idMal ? 'mal-' + x.idMal : 'anilist-' + x.id, title: x.title.english || x.title.romaji || x.title.native, aliases: [x.title.romaji, x.title.native, ...(x.synonyms || [])].filter(Boolean), kind: 'anime', year: x.startDate?.year, episodes: x.episodes, poster: x.coverImage?.large, synopsis: plain(x.description), source: x.siteUrl, provider: 'AniList', genre: (x.genres || []).join(', ') }));
+  return data.data.Page.media.map(x => ({ id: x.idMal ? 'mal-' + x.idMal : 'anilist-' + x.id, title: x.title.english || x.title.romaji || x.title.native, aliases: [x.title.romaji, x.title.native, ...(x.synonyms || [])].filter(Boolean), kind: 'anime', year: x.startDate?.year, episodes: x.episodes, poster: x.coverImage?.large, posterOptions: [x.coverImage?.extraLarge, x.coverImage?.medium].filter(Boolean), synopsis: plain(x.description), source: x.siteUrl, provider: 'AniList', genre: (x.genres || []).join(', ') }));
 }
 async function jikanSearch(q, signal) {
   const data = await searchJSON('https://api.jikan.moe/v4/anime?' + new URLSearchParams({ q, limit: '12', sfw: 'true' }), {}, signal);
   if (!Array.isArray(data.data)) throw Error('Jikan unavailable');
-  return data.data.map(x => ({ id: 'mal-' + x.mal_id, title: x.title_english || x.title, aliases: [x.title, x.title_japanese], kind: 'anime', year: x.year || x.aired?.prop?.from?.year, episodes: x.episodes, poster: x.images?.jpg?.large_image_url, synopsis: x.synopsis, source: x.url, provider: 'MyAnimeList / Jikan', genre: (x.genres || []).map(g => g.name).join(', ') }));
+  return data.data.map(x => ({ id: 'mal-' + x.mal_id, title: x.title_english || x.title, aliases: [x.title, x.title_japanese], kind: 'anime', year: x.year || x.aired?.prop?.from?.year, episodes: x.episodes, poster: x.images?.jpg?.large_image_url, posterOptions: [x.images?.jpg?.image_url, x.images?.jpg?.small_image_url].filter(Boolean), synopsis: x.synopsis, source: x.url, provider: 'MyAnimeList / Jikan', genre: (x.genres || []).map(g => g.name).join(', ') }));
 }
 async function wikiSearch(q, kind, signal) {
   const thai = /[\u0E00-\u0E7F]/.test(q), lang = thai ? 'th' : 'en';
@@ -104,9 +111,9 @@ function initSearch() {
       results = found;
       region.innerHTML = found.length ? `<p class="search-summary">พบ ${found.length} เรื่อง · เลือกเพื่อเก็บเข้าคลัง</p>` + found.map((x, i) => {
         const alias = (x.aliases || []).find(s => s && s.toLowerCase() !== x.title.toLowerCase() && s.toLowerCase().includes(q.toLowerCase()));
-        return `<div class="result" id="suggestion-${i}" data-suggestion="${i}">${safeURL(x.poster) ? `<img src="${esc(safeURL(x.poster))}" alt="" referrerpolicy="no-referrer">` : '<div class="result-placeholder" aria-hidden="true">' + (kind === 'anime' ? '✧' : '▻') + '</div>'}<div class="result-body"><h3>${highlightTitle(x.title, q)}</h3>${alias ? `<div class="result-alias">${highlightTitle(alias, q)}</div>` : ''}<p>${esc(x.year || 'ไม่ระบุปี')} · ${esc(x.genre || '')}${x.episodes && kind === 'anime' ? ' · ' + x.episodes + ' ตอน' : ''}</p>${safeURL(x.source) ? `<a class="source-link" href="${esc(safeURL(x.source))}" target="_blank" rel="noopener noreferrer">${esc(x.provider)} ↗</a>` : ''}</div><button class="primary" data-result="${i}" aria-label="เก็บ ${esc(x.title)}">${items.some(item => item.id === x.id) ? 'ในคลังแล้ว' : '＋ เก็บ'}</button></div>`;
+        return `<div class="result" id="suggestion-${i}" data-suggestion="${i}">${safeURL(x.poster) ? `<img src="${esc(safeURL(x.poster))}" data-fallbacks="${esc(JSON.stringify(x.posterOptions || []))}" alt="" loading="lazy">` : '<div class="result-placeholder" aria-hidden="true">' + (kind === 'anime' ? '✧' : '▻') + '</div>'}<div class="result-body"><h3>${highlightTitle(x.title, q)}</h3>${alias ? `<div class="result-alias">${highlightTitle(alias, q)}</div>` : ''}<p>${esc(x.year || 'ไม่ระบุปี')} · ${esc(x.genre || '')}${x.episodes && kind === 'anime' ? ' · ' + x.episodes + ' ตอน' : ''}</p>${safeURL(x.source) ? `<a class="source-link" href="${esc(safeURL(x.source))}" target="_blank" rel="noopener noreferrer">${esc(x.provider)} ↗</a>` : ''}</div><button class="primary" data-result="${i}" aria-label="เก็บ ${esc(x.title)}">${items.some(item => item.id === x.id) ? 'ในคลังแล้ว' : '＋ เก็บ'}</button></div>`;
       }).join('') : '<div class="search-start">ไม่พบเรื่องที่ตรงกับ “' + esc(q) + '”<br>ลองชื่อภาษาอังกฤษ ชื่อภาษาไทย หรือเพิ่มข้อมูลเองได้</div>';
-      region.querySelectorAll('img').forEach(img => img.onerror = () => img.remove());
+      region.querySelectorAll('img').forEach(img => img.onerror = () => retryImage(img));
     } catch (error) {
       if (request !== searchId) return;
       results = [];
