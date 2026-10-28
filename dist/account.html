@@ -3,7 +3,7 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#111313"><title>เข้าสู่ระบบ — Jetabait</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="style.css"><link rel="stylesheet" href="theme.css"><link rel="stylesheet" href="login.css"><link rel="modulepreload" href="vendor/supabase.js"><script defer src="config.js"></script><script defer src="account.js"></script><script defer src="account-page.js"></script></head>
-<body class="account-page login-only">
+<body class="account-page login-only"><script>if(new URLSearchParams(location.search).has("embed")&&window.parent!==window)document.body.classList.add("embedded-settings");</script>
 <div class="auth-transition" role="status"><span class="transition-brand">Jetabait<span>✳</span></span><p>กำลังเตรียมพื้นที่ของคุณ…</p><a href="/account.html">ลองเข้าสู่ระบบอีกครั้ง</a></div>
 <noscript><p>กรุณาเปิด JavaScript เพื่อเข้าสู่ระบบและใช้งานคลัง</p></noscript>
 <main class="account-shell">
@@ -17,7 +17,7 @@
 <button id="google-signin" class="google-signin" disabled><svg aria-hidden="true" viewBox="0 0 48 48" width="20" height="20"><path fill="#4285f4" d="M43.6 20.5H24v8h11.3C33.8 33.1 29.5 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 3l6-6C34.1 5.8 29.3 4 24 4 13 4 4 13 4 24s9 20 20 20c11.5 0 20-8.1 20-20 0-1.2-.1-2.4-.4-3.5Z"/><path fill="#34a853" d="M6.3 33.3A20 20 0 0 0 24 44c5.1 0 9.7-1.7 13.1-4.7L31 34.5A12 12 0 0 1 13 29Z"/><path fill="#fbbc05" d="M4 24c0 3.4.8 6.6 2.3 9.3L13 29a12 12 0 0 1 0-10l-6.7-4.3A20 20 0 0 0 4 24Z"/><path fill="#ea4335" d="M24 4A20 20 0 0 0 6.3 14.7L13 19a12 12 0 0 1 18.8-4l6-6A20 20 0 0 0 24 4Z"/></svg> เข้าสู่ระบบด้วย Google <span aria-hidden="true">→</span></button>
 <div class="login-details"><span>อย่าอย่าน</span><span>กูว่าแล้วมึงต้องอ่าน</span></div>
 <section id="profile-panel" hidden><img id="profile-avatar" class="profile-avatar" width="96" height="96" alt="รูปโปรไฟล์" hidden><div class="profile-name" id="profile-name"></div><p id="profile-email"></p>
-<form id="profile-form" class="profile-editor"><label>ชื่อที่แสดง<input id="display-name" maxlength="160" required autocomplete="nickname"></label><label>เปลี่ยนรูปโปรไฟล์<input id="avatar-file" type="file" accept="image/jpeg,image/png,image/webp"></label><button type="button" class="secondary" id="reset-avatar">ใช้รูปจาก Google</button><button type="submit" class="primary" id="save-profile">บันทึกการเปลี่ยนแปลง</button><p id="profile-status" role="status" aria-live="polite"></p></form>
+<form id="profile-form" class="profile-editor"><label>ชื่อที่แสดง<input id="display-name" maxlength="160" required autocomplete="nickname"></label><label>เปลี่ยนรูปโปรไฟล์<input id="avatar-file" type="file" accept="image/jpeg,image/png,image/webp"></label><button type="submit" class="primary" id="save-profile">บันทึกการเปลี่ยนแปลง</button><p id="profile-status" role="status" aria-live="polite"></p></form>
 <div class="account-actions"><button class="secondary" id="google-signout">ออกจากระบบ</button></div></section>
 </section></div>
 <div id="save-success" class="save-success" role="status" aria-live="polite" hidden><span class="success-check" aria-hidden="true">✓</span><span>บันทึกการเปลี่ยนแปลงแล้ว</span></div>

@@ -3,7 +3,7 @@
   let navigating = false;
   const success = $('save-success');
   let successTimer;
-  $('settings-close').onclick = () => { location.replace('/'); };
+  $('settings-close').onclick = () => { if (window.parent !== window) window.parent.postMessage('jetabait-close-settings', location.origin); else location.replace('/'); };
   async function render() {
     const state = await JetaAccount.ready;
     const current = JetaAccount.state();
@@ -62,7 +62,6 @@
       $('profile-status').textContent = 'เลือกรูปแล้ว กดบันทึกเพื่อใช้รูปนี้';
     } catch(e) { avatarCustom = undefined; $('profile-status').textContent = e.message; }
   };
-  $('reset-avatar').onclick = () => { avatarCustom = null; $('profile-avatar').src = JetaAccount.state().user.user_metadata?.avatar_url || ''; $('profile-status').textContent = 'กดบันทึกเพื่อกลับไปใช้รูป Google'; };
   $('profile-form').onsubmit = async event => {
     event.preventDefault(); $('save-profile').disabled = true;
     try {
