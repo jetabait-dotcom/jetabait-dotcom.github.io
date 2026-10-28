@@ -22,7 +22,7 @@ async function page(user, hash = '', error = null) {
   const { api, context, classes } = await account(user ? { user } : null, error);
   const nodes = new Map(); let writes = 0;
   const get = id => {
-    if (!nodes.has(id)) nodes.set(id, { value:'', contains:()=>false, set hidden(value){writes++}, set disabled(value){writes++}, set textContent(value){writes++} });
+    if (!nodes.has(id)) nodes.set(id, { value:'', addEventListener(){}, contains:()=>false, set hidden(value){writes++}, set disabled(value){writes++}, set textContent(value){writes++} });
     return nodes.get(id);
   };
   context.JetaAccount = api; context.window.JetaProfile=undefined; context.location.hash = hash;
