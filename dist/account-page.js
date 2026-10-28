@@ -1,6 +1,8 @@
 (() => {
   const $ = id => document.getElementById(id);
   let navigating = false;
+  const success = $('save-success');
+  $('close-success').onclick = () => { success.hidden = true; };
   async function render() {
     const state = await JetaAccount.ready;
     const current = JetaAccount.state();
@@ -68,7 +70,7 @@
       if (!values.display_name) throw Error('กรุณาใส่ชื่อที่แสดง');
       if (avatarCustom !== undefined) values.avatar_custom = avatarCustom;
       await JetaAccount.updateProfile(values); await JetaAccount.profile();
-      avatarCustom = undefined; $('profile-status').textContent = 'บันทึกเรียบร้อยแล้ว';
+      avatarCustom = undefined; $('profile-status').textContent = ''; success.hidden = false;
     } catch(e) { $('profile-status').textContent = e.message; }
     finally { $('save-profile').disabled = false; }
   };

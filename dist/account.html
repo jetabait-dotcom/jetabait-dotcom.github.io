@@ -17,8 +17,9 @@
 <div class="login-details"><span>อย่าอย่าน</span><span>กูว่าแล้วมึงต้องอ่าน</span></div>
 <section id="profile-panel" hidden><img id="profile-avatar" class="profile-avatar" width="96" height="96" alt="รูปโปรไฟล์" hidden><div class="profile-name" id="profile-name"></div><p id="profile-email"></p>
 <form id="profile-form" class="profile-editor"><label>ชื่อที่แสดง<input id="display-name" maxlength="160" required autocomplete="nickname"></label><label>เปลี่ยนรูปโปรไฟล์<input id="avatar-file" type="file" accept="image/jpeg,image/png,image/webp"></label><button type="button" class="secondary" id="reset-avatar">ใช้รูปจาก Google</button><section id="settings"><h2>ตั้งค่า</h2><label>เรียงคลังเริ่มต้น<select id="default-sort"><option value="recent">เพิ่มล่าสุด</option><option value="title">ชื่อเรื่อง A–Z</option><option value="rating">คะแนนสูงสุด</option></select></label></section><button type="submit" class="primary" id="save-profile">บันทึกการเปลี่ยนแปลง</button><p id="profile-status" role="status" aria-live="polite"></p></form>
-<div class="account-actions"><a class="primary" href="/library.html">เปิดคลังของฉัน →</a><button class="secondary" id="google-signout">ออกจากระบบ</button></div></section>
+<div class="account-actions"><button class="secondary" id="google-signout">ออกจากระบบ</button></div></section>
 <a class="account-back" href="/">← กลับหน้าเมนู</a>
 </section></div>
+<div id="save-success" class="save-success" role="status" aria-live="polite" hidden><span class="success-check" aria-hidden="true">✓</span><span>บันทึกการเปลี่ยนแปลงแล้ว</span><button id="close-success" type="button" aria-label="ปิด">×</button></div>
 <footer class="account-footer"><span>Jetabait · Personal collection</span></footer>
 </main></body></html>
