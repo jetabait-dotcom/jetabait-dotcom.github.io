@@ -2,7 +2,8 @@
   const $ = id => document.getElementById(id);
   let navigating = false;
   const success = $('save-success');
-  $('close-success').onclick = () => { success.hidden = true; };
+  let successTimer;
+  $('settings-close').onclick = () => { location.replace('/'); };
   async function render() {
     const state = await JetaAccount.ready;
     const current = JetaAccount.state();
@@ -21,7 +22,6 @@
       const meta = current.user.user_metadata || {};
       if (!$('profile-form').contains(document.activeElement)) {
         $('display-name').value = meta.display_name || meta.full_name || '';
-        $('default-sort').value = meta.default_sort || 'recent';
       }
       const avatar = meta.avatar_custom || meta.avatar_url;
       if (avatar && /^(https:\/\/|data:image\/webp;base64,)/.test(avatar)) { $('profile-avatar').src = avatar; $('profile-avatar').hidden = false; }
@@ -66,11 +66,12 @@
   $('profile-form').onsubmit = async event => {
     event.preventDefault(); $('save-profile').disabled = true;
     try {
-      const values = { display_name: $('display-name').value.trim(), default_sort: $('default-sort').value };
+      const values = { display_name: $('display-name').value.trim() };
       if (!values.display_name) throw Error('กรุณาใส่ชื่อที่แสดง');
       if (avatarCustom !== undefined) values.avatar_custom = avatarCustom;
       await JetaAccount.updateProfile(values); await JetaAccount.profile();
       avatarCustom = undefined; $('profile-status').textContent = ''; success.hidden = false;
+      clearTimeout(successTimer); successTimer = setTimeout(() => { success.hidden = true; }, 1800);
     } catch(e) { $('profile-status').textContent = e.message; }
     finally { $('save-profile').disabled = false; }
   };
