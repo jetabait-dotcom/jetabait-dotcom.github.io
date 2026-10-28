@@ -26,6 +26,7 @@ async function syncLibrary() {
     return;
   }
   if (state.error || !state.user) { location.replace('/account.html'); return; }
+  $('sort').value = state.user.user_metadata?.default_sort || 'recent';
   const id = state.user.id;
   accountStore = new JetaCloudLibrary(id, valid);
   try {

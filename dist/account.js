@@ -62,10 +62,18 @@
       if (!client || !state.user) throw Error('กรุณาเข้าสู่ระบบก่อน');
       return client;
     },
+    async updateProfile(values) {
+      const db = await this.database();
+      const { data, error } = await db.auth.updateUser({ data: values });
+      if (error) throw Error('บันทึกโปรไฟล์ไม่ได้ กรุณาลองใหม่');
+      state.user = data.user;
+      notify();
+      return data.user;
+    },
     async profile() {
       const db = await this.database(), user = state.user;
       const { data, error } = await db.from('profiles').upsert({
-        id: user.id, display_name: String(user.user_metadata?.full_name || user.email || '').slice(0, 160)
+        id: user.id, display_name: String(user.user_metadata?.display_name || user.user_metadata?.full_name || user.email || '').slice(0, 160)
       }, { onConflict: 'id' }).select('id,display_name').single();
       if (error) throw Error('ยังเชื่อมโปรไฟล์ออนไลน์ไม่ได้');
       return data;
