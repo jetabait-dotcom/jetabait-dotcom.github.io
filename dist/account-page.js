@@ -6,6 +6,8 @@
     $('google-signin').hidden = Boolean(current.user);
     $('profile-panel').hidden = !current.user;
     $('google-signin').disabled = !current.configured || !current.googleEnabled || Boolean(current.error);
+    if (current.user && !['#profile', '#settings'].includes(location.hash)) { location.replace('/'); return state; }
+    document.body.classList.toggle('login-only', !current.user);
     if (current.user) {
       $('account-title').textContent = 'บัญชีของฉัน';
       $('account-description').textContent = 'เชื่อมต่อบัญชี Google แล้ว';
@@ -23,7 +25,7 @@
     } else {
       $('account-message').textContent = current.error || (!current.configured || !current.googleEnabled
         ? 'เตรียมระบบบัญชีและคลังออนไลน์แล้ว กำลังรอเปิดใช้งาน Google Login'
-        : 'ใช้บัญชี Google ของคุณเพื่อเข้าสู่ระบบหรือสร้างบัญชีใหม่');
+        : '');
     }
     return state;
   }

@@ -8,7 +8,7 @@
     let menu = document.getElementById('user-menu');
     if (!menu) {
       menu = document.createElement('details'); menu.id = 'user-menu'; menu.className = 'user-menu';
-      menu.innerHTML = '<summary><img alt="" hidden><span></span></summary><div class="user-menu-items"><a href="/account.html">โปรไฟล์ของฉัน</a><a href="/account.html#settings">ตั้งค่า</a><button type="button">ออกจากระบบ</button><p role="status"></p></div>';
+      menu.innerHTML = '<summary><img alt="" hidden><span></span></summary><div class="user-menu-items"><a href="/account.html#profile">โปรไฟล์ของฉัน</a><a href="/account.html#settings">ตั้งค่า</a><button type="button">ออกจากระบบ</button><p role="status"></p></div>';
       document.body.append(menu);
       menu.querySelector('button').onclick = async () => {
         try { await JetaAccount.signOut(); location.replace('/account.html'); }
