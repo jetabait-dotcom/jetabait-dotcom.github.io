@@ -3,7 +3,8 @@
   "private": true,
   "scripts": {
     "build": "esbuild node_modules/@supabase/supabase-js/dist/index.mjs --bundle --minify --format=esm --platform=browser --target=es2022 --outfile=dist/vendor/supabase.js",
-    "test": "node auth.test.cjs && node board.test.cjs && node duel.test.mjs && node duel-server.test.mjs"
+    "build:spyfall": "node scripts/build-spyfall.mjs",
+    "test": "node auth.test.cjs && node board.test.cjs && node duel.test.mjs && node duel-server.test.mjs && node spyfall.test.mjs && node spyfall-server.test.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.118.0"

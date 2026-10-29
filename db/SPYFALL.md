@@ -1,0 +1,9 @@
+# Spyfall
+
+Unofficial core-game adaptation with an original 30-location Thai set. 3–8 accounts, one spy, 8 minutes, five rounds. Players talk in person or on their existing voice call; no audio is captured.
+
+Rules: Cryptozoic's currently linked 2022 rulebook: https://cdn.shopify.com/s/files/1/0464/6961/1676/files/Spyfall1_Rules_compressed.pdf?v=1721920618 from https://cryptozoic.com/products/spyfall-game . Final vote follows that edition (no unanimous decision = spy wins). Host records the group's final suspect choice. Question order is coordinated by players verbally; the UI identifies the first questioner. The first questioner after round one is the previous spy. Locations/role translations are custom; no publisher card scans used.
+
+`spyfall-game` Edge Function MUST deploy with `verify_jwt: true`. Platform verifies the Google session JWT; the handler hashes its authenticated subject to identify a seat, never trusts client seat/role/location claims. Hidden state is only in the protected table. Public state is explicitly constructed for each member and contains only their own secret card. Direct Data API grants to anon/authenticated are revoked with RLS deny policy. No service key in browser. Version compare-and-swap resolves concurrent moves. Rooms expire after 24h without mutations; create limited to 3/min per authenticated account. Engine evaluates deadline before actions, pauses time for accusation voting, locks finished results, then resets secrets next round.
+
+Build: `node scripts/build-spyfall.mjs` (small bundled vanilla JS and original CSS illustration, shared existing Auth SDK). Tests: `node spyfall.test.mjs` and `node spyfall-server.test.mjs`. The latter executes the actual transpiled handler with a simulated database/JWT gateway; it does not test real Google OAuth or Supabase persistence.

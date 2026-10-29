@@ -3,3 +3,4 @@
 .hub-menu .tool-grid{flex-wrap:wrap;gap:20px}.game-hub-card .tool-art{background:radial-gradient(ellipse at 20% 10%,#35465c,#222027 80%);color:#a3bad7}.game-hub-card .tool-art>span{color:#a3bad7}
 
 .duel-hub-card .tool-art{background:#1b3941;isolation:isolate}.duel-hub-card .tool-art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.6;z-index:-1}.duel-hub-card .tool-art i{color:#f7db9c;text-shadow:0 2px 12px #000;font-family:Georgia,serif;transform:none}.duel-hub-card .tool-art b{color:#f2d59e}
+.spyfall-hub-card .tool-art{background:radial-gradient(ellipse at 70% 10%,#50415f,#252333 80%);color:#e6a282}.spyfall-hub-card .tool-art>span{color:#b6a5db;font-size:125px}.spyfall-hub-card .tool-art i{color:#f2d5c8;transform:rotate(-8deg);text-shadow:0 2px 16px #17111e}.spyfall-hub-card .tool-art b{color:#e6a282}
