@@ -31,7 +31,7 @@ jobs:
           run_install: |
             - args: [--frozen-lockfile]
       - name: Test application
-        run: node --test auth.test.cjs board.test.cjs duel.test.mjs duel-server.test.mjs spyfall.test.mjs spyfall-server.test.mjs
+        run: node --test auth.test.cjs board.test.cjs duel.test.mjs duel-server.test.mjs spyfall.test.mjs spyfall-server.test.mjs presence.test.mjs
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
