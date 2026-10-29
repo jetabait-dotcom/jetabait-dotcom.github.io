@@ -12,7 +12,7 @@ async function account(session, error = null) {
   }};
   const context = vm.createContext({ window: { JETABAIT_CONFIG: { supabaseUrl:'https://example.supabase.co', supabasePublishableKey:'sb_publishable_test', googleEnabled:true } }, document: { documentElement:root }, URL, setTimeout, sdkCreateClient: () => client,
     sessionStorage: { getItem: key => storage.get(key), setItem:(key,value) => storage.set(key,value), removeItem:key => storage.delete(key) },
-    location: { pathname:'/library.html', replace: url => context.redirect = url } });
+    location: { pathname:'/codenames.html', replace: url => context.redirect = url } });
   vm.runInContext(source, context);
   const api = context.window.JetaAccount;
   await api.ready;
@@ -43,7 +43,7 @@ async function page(user, hash = '', error = null) {
   assert.equal(changed, undefined, 'notify must run after the auth callback releases its lock');
   await new Promise(resolve=>setTimeout(resolve, 0)); assert.equal(changed, null);
   cached.api.requireLogin(); assert.equal(cached.context.redirect, '/account.html');
-  assert.equal(cached.api.destination(), '/library.html'); assert.equal(cached.api.destination(), '/');
+  assert.equal(cached.api.destination(), '/codenames.html'); assert.equal(cached.api.destination(), '/');
   cached.storage.set('jetabait-return','https://untrusted.example'); assert.equal(cached.api.destination(), '/');
   const callback = await page(user);
   assert.equal(callback.redirect, '/'); assert.equal(callback.writes, 0, 'OAuth return must navigate before touching profile/login DOM');
@@ -51,7 +51,7 @@ async function page(user, hash = '', error = null) {
   const login = await page(null); assert.ok(!login.classes.has('auth-pending'));
   const failure = await page(null, '', Error('offline')); assert.ok(!failure.classes.has('auth-pending'), 'show sign-in error instead of a blank screen');
   const profile = await page(user, '#profile'); assert.equal(profile.redirect, undefined); assert.ok(!profile.classes.has('auth-pending'));
-  for (const name of ['index','library','account']) assert.match(fs.readFileSync('dist/'+name+'.html','utf8'), /<html lang="th" class="auth-pending">/, 'gate must exist before the first paint');
-  assert.doesNotMatch(fs.readFileSync('dist/library.html','utf8'), /xlsx.full.min.js/, 'Excel must not block initial loading');
-  console.log('PASS: cached session, deferred auth notifications, safe return routes, callback without profile flash, error recovery, profile view, early paint gate, lazy Excel');
+  for (const name of ['index','account']) assert.match(fs.readFileSync('dist/'+name+'.html','utf8'), /<html lang="th" class="auth-pending">/, 'gate must exist before the first paint');
+  assert.doesNotMatch(fs.readFileSync('dist/codenames.html','utf8'), /xlsx.full.min.js/, 'Excel must not block initial loading');
+  console.log('PASS: cached session, deferred auth notifications, safe return routes, callback without profile flash, error recovery, profile view, early paint gate');
 })().catch(error=>{console.error(error);process.exitCode=1});

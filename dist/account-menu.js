@@ -3,12 +3,12 @@
     await JetaAccount.ready;
     const {user, error} = JetaAccount.state();
     if (!user && JetaAccount.guest()) {
-      if (document.body.dataset.page !== 'library') JetaAccount.reveal();
+      JetaAccount.reveal();
       if (!document.getElementById('guest-login')) { const link=document.createElement('a'); link.id='guest-login'; link.className='user-menu guest-login'; link.href='/account.html'; link.textContent='เข้าสู่ระบบ'; document.body.append(link); }
       return;
     }
     if (!user || error) { JetaAccount.requireLogin(); return; }
-    if (document.body.dataset.page !== 'library') JetaAccount.reveal();
+    JetaAccount.reveal();
     let menu = document.getElementById('user-menu');
     if (!menu) {
       menu = document.createElement('details'); menu.id = 'user-menu'; menu.className = 'user-menu';
@@ -29,7 +29,7 @@
         return {modal,refresh};
       })().catch(error=>{settingsReady=null;throw error});
       const idle=window.requestIdleCallback || (fn=>setTimeout(fn,300));idle(()=>{prepareSettings().catch(()=>{})});
-      document.querySelectorAll('#user-menu a, .hub-account, #library-account').forEach(link=>link.onclick=async event=>{
+      document.querySelectorAll('#user-menu a, .hub-account').forEach(link=>link.onclick=async event=>{
         event.preventDefault();menu.open=false;
         try{const {modal,refresh}=await prepareSettings();await refresh();if(!modal.open)modal.showModal()}
         catch(error){menu.open=true;menu.querySelector('p').textContent=error.message}

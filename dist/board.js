@@ -3,7 +3,7 @@
   const $ = id => document.getElementById(id);
   const key = 'jetaboard-shortcuts-v1';
   const defaults = [
-    { name:'Jetawatch', url:'/library.html', icon:'✳', color:'#3b2933', ink:'#edacc6' },
+    { name:'Codenames', url:'/codenames.html', icon:'⌘', color:'#29333b', ink:'#a3bad7' },
     { name:'YouTube', url:'https://www.youtube.com/', icon:'▶', color:'#382528', ink:'#ed9ba3' },
     { name:'Google', url:'https://www.google.com/', icon:'G', color:'#26312c', ink:'#b2cdae' },
     { name:'ChatGPT', url:'https://chatgpt.com/', icon:'◎', color:'#293331', ink:'#a6c9bd' },

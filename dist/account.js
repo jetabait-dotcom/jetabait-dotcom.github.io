@@ -42,10 +42,10 @@
     destination() {
       let path = '/';
       try { path = sessionStorage.getItem('jetabait-return') || '/'; sessionStorage.removeItem('jetabait-return'); } catch {}
-      return ['/', '/library', '/library.html'].includes(path) ? path : '/';
+      return ['/', '/codenames', '/codenames.html'].includes(path) ? path : '/';
     },
     requireLogin() {
-      try { sessionStorage.setItem('jetabait-return', ['/library', '/library.html'].includes(location.pathname) ? '/library.html' : '/'); } catch {}
+      try { sessionStorage.setItem('jetabait-return', ['/codenames', '/codenames.html'].includes(location.pathname) ? '/codenames.html' : '/'); } catch {}
       location.replace('/account.html');
     },
     subscribe(listener) { listeners.add(listener); return () => listeners.delete(listener); },
